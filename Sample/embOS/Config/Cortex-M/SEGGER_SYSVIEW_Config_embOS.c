@@ -3,7 +3,7 @@
 *                        The Embedded Experts                        *
 **********************************************************************
 *                                                                    *
-*            (c) 1995 - 2021 SEGGER Microcontroller GmbH             *
+*            (c) 1995 - 2024 SEGGER Microcontroller GmbH             *
 *                                                                    *
 *       www.segger.com     Support: support@segger.com               *
 *                                                                    *
@@ -42,14 +42,14 @@
 *                                                                    *
 **********************************************************************
 *                                                                    *
-*       SystemView version: 3.30                                    *
+*       SystemView version: 3.54                                    *
 *                                                                    *
 **********************************************************************
 -------------------------- END-OF-HEADER -----------------------------
 
 File    : SEGGER_SYSVIEW_Config_embOS.c
 Purpose : Sample setup configuration of SystemView with embOS.
-Revision: $Rev: 21319 $
+Revision: $Rev: 25330 $
 */
 #include "RTOS.h"
 #include "SEGGER_SYSVIEW.h"
@@ -135,7 +135,7 @@ void SEGGER_SYSVIEW_Conf(void) {
   }
   SEGGER_SYSVIEW_Init(SEGGER_SYSVIEW_TIMESTAMP_FREQ, SEGGER_SYSVIEW_CPU_FREQ,
                       &SYSVIEW_X_OS_TraceAPI, _cbSendSystemDesc);
-  OS_TRACE_SetAPI(&embOS_TraceAPI_SYSVIEW);  // Configure embOS to use SYSVIEW.
+  OS_SetTraceAPI(&embOS_TraceAPI_SYSVIEW);   // Configure embOS to use SYSVIEW.
 #if SEGGER_SYSVIEW_START_ON_INIT
   SEGGER_SYSVIEW_Start();                    // Start recording to catch system initialization.
 #endif
