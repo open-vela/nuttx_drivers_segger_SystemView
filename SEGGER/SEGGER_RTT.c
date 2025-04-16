@@ -301,9 +301,13 @@ static unsigned char _ActiveTerminal;
 *    (1) May only be called via INIT() to avoid overriding settings.
 *        The only exception is SEGGER_RTT_Init(), to make an intentional override possible.
 */
-  #define INIT()                                                                             \
+  #define INIT() INIT_RETURN(-1)
+  #define INIT_RETURN(val)                                                                   \
     do {                                                                                     \
       volatile SEGGER_RTT_CB* pRTTCBInit;                                                    \
+      if (SEGGER_RTT_UNCACHED_OFF == PTRDIFF_MAX) {                                          \
+        return (val);                                                                  \
+      }                                                                                      \
       pRTTCBInit = (volatile SEGGER_RTT_CB*)((uintptr_t)&_SEGGER_RTT + SEGGER_RTT_UNCACHED_OFF); \
       if (pRTTCBInit->acID[0] != 'S') {                                                      \
         _DoInit();                                                                           \
@@ -578,7 +582,7 @@ unsigned SEGGER_RTT_ReadUpBufferNoLock(unsigned BufferIndex, void* pData, unsign
   SEGGER_RTT_BUFFER_UP*   pRing;
   volatile char*          pSrc;
 
-  INIT();
+  INIT_RETURN(0);
   pRing = (SEGGER_RTT_BUFFER_UP*)((uintptr_t)&_SEGGER_RTT.aUp[BufferIndex] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
   pBuffer = (unsigned char*)pData;
   RdOff = pRing->RdOff;
@@ -670,7 +674,7 @@ unsigned SEGGER_RTT_ReadNoLock(unsigned BufferIndex, void* pData, unsigned Buffe
   SEGGER_RTT_BUFFER_DOWN* pRing;
   volatile char*          pSrc;
   //
-  INIT();
+  INIT_RETURN(0);
   pRing = (SEGGER_RTT_BUFFER_DOWN*)((uintptr_t)&_SEGGER_RTT.aDown[BufferIndex] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
   pBuffer = (unsigned char*)pData;
   RdOff = pRing->RdOff;
@@ -1175,7 +1179,7 @@ unsigned SEGGER_RTT_WriteNoLock(unsigned BufferIndex, const void* pBuffer, unsig
 unsigned SEGGER_RTT_WriteDownBuffer(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes) {
   unsigned Status;
 
-  INIT();
+  INIT_RETURN(0);
   SEGGER_RTT_LOCK();
   Status = SEGGER_RTT_WriteDownBufferNoLock(BufferIndex, pBuffer, NumBytes);  // Call the non-locking write function
   SEGGER_RTT_UNLOCK();
@@ -1204,7 +1208,7 @@ unsigned SEGGER_RTT_WriteDownBuffer(unsigned BufferIndex, const void* pBuffer, u
 unsigned SEGGER_RTT_Write(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes) {
   unsigned Status;
 
-  INIT();
+  INIT_RETURN(0);
   SEGGER_RTT_LOCK();
   Status = SEGGER_RTT_WriteNoLock(BufferIndex, pBuffer, NumBytes);  // Call the non-locking write function
   SEGGER_RTT_UNLOCK();
@@ -1319,7 +1323,7 @@ unsigned SEGGER_RTT_PutCharSkip(unsigned BufferIndex, char c) {
   //
   // Prepare
   //
-  INIT();
+  INIT_RETURN(0);
   SEGGER_RTT_LOCK();
   //
   // Get "to-host" ring buffer.
@@ -1378,7 +1382,7 @@ unsigned SEGGER_RTT_PutChar(unsigned BufferIndex, char c) {
   //
   // Prepare
   //
-  INIT();
+  INIT_RETURN(0);
   SEGGER_RTT_LOCK();
   //
   // Get "to-host" ring buffer.
@@ -1897,6 +1901,7 @@ int SEGGER_RTT_SetFlagsDownBuffer(unsigned BufferIndex, unsigned Flags) {
 *
 */
 void SEGGER_RTT_Init (void) {
+  while (SEGGER_RTT_UNCACHED_OFF == PTRDIFF_MAX);
   _DoInit();
 }
 
