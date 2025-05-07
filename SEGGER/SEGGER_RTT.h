@@ -461,7 +461,8 @@ int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pPa
 #define SEGGER_RTT_MODE_NO_BLOCK_SKIP         (0)     // Skip. Do not block, output nothing. (Default)
 #define SEGGER_RTT_MODE_NO_BLOCK_TRIM         (1)     // Trim: Do not block, output as much as fits.
 #define SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL    (2)     // Block: Wait until there is space in the buffer.
-#define SEGGER_RTT_MODE_MASK                  (3)
+#define SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL_AND_CONNECTED (4)
+#define SEGGER_RTT_MODE_MASK                  (7)
 
 //
 // Control sequences, based on ANSI.

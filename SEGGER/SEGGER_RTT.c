@@ -357,6 +357,29 @@ static void _DoInit(void) {
 
 /*********************************************************************
 *
+*       _GetFlags()
+*
+*  Function description
+*    Get segger buffer flag.
+*
+*/
+
+static unsigned _GetFlags(SEGGER_RTT_BUFFER_UP* pRing) {
+  unsigned Flags = pRing->Flags;
+
+  if (Flags == SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL_AND_CONNECTED) {
+    if (pRing->RdOff != 0) {
+      Flags = pRing->Flags = SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL;
+    } else {
+      Flags = SEGGER_RTT_MODE_NO_BLOCK_SKIP;
+    }
+  }
+
+  return Flags;
+}
+
+/*********************************************************************
+*
 *       _WriteBlocking()
 *
 *  Function description
@@ -1039,7 +1062,7 @@ unsigned SEGGER_RTT_WriteDownBufferNoLock(unsigned BufferIndex, const void* pBuf
   //
   // How we output depends upon the mode...
   //
-  switch (pRing->Flags) {
+  switch (_GetFlags(pRing)) {
   case SEGGER_RTT_MODE_NO_BLOCK_SKIP:
     //
     // If we are in skip mode and there is no space for the whole
@@ -1113,7 +1136,7 @@ unsigned SEGGER_RTT_WriteNoLock(unsigned BufferIndex, const void* pBuffer, unsig
   //
   // How we output depends upon the mode...
   //
-  switch (pRing->Flags) {
+  switch (_GetFlags(pRing)) {
   case SEGGER_RTT_MODE_NO_BLOCK_SKIP:
     //
     // If we are in skip mode and there is no space for the whole
